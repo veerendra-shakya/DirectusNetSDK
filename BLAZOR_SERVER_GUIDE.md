@@ -56,14 +56,7 @@ Install the Directus.Net SDK:
 dotnet add package Directus.Net
 ```
 
-Install additional required packages:
-
-```bash
-dotnet add package Microsoft.AspNetCore.Components.Server
-dotnet add package Microsoft.AspNetCore.Authentication.Cookies
-dotnet add package Blazored.LocalStorage
-dotnet add package Blazored.SessionStorage
-```
+No additional packages are required beyond the Directus.Net SDK, as .NET 9 includes all necessary authentication and protected storage components built-in.
 
 ## Service Configuration
 
@@ -114,6 +107,8 @@ public class AuthenticationSettings
 ### 3. Create Custom Token Store for Blazor
 
 Create `Services/BlazorServerTokenStore.cs`:
+
+Note: `ProtectedSessionStorage` is built-in to .NET 9 Blazor Server and doesn't require additional packages.
 
 ```csharp
 using Directus.Net.Abstractions;
@@ -248,9 +243,6 @@ var authSettings = builder.Configuration
 
 builder.Services.AddSingleton(directusSettings);
 builder.Services.AddSingleton(authSettings);
-
-// Register protected browser storage
-builder.Services.AddScoped<ProtectedSessionStorage>();
 
 // Register custom token store
 builder.Services.AddScoped<ITokenStore, BlazorServerTokenStore>();
