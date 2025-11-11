@@ -74,6 +74,9 @@
             isLoading = true;
             StateHasChanged();
             
+            // Small delay to ensure session storage is ready
+            await Task.Delay(100);
+            
             var isAuthenticated = await AuthService.IsAuthenticatedAsync();
 
             if (!isAuthenticated)

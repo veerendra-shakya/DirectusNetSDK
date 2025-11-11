@@ -64,7 +64,7 @@ public class BlazorServerTokenStore : ITokenStore
         }
     }
 
-    public async Task ClearTokensAsync(CancellationToken cancellationToken = default)
+    public async Task ClearAsync(CancellationToken cancellationToken = default)
     {
         await _sessionStorage.DeleteAsync(AccessTokenKey);
         await _sessionStorage.DeleteAsync(RefreshTokenKey);
