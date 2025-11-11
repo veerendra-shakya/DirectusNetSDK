@@ -1,8 +1,10 @@
 @page "/login"
+@rendermode InteractiveServer
 @using DirectusBlazorApp.Services
 @using DirectusBlazorApp.Models
 @inject DirectusAuthService AuthService
-@inject NavigationManager Navigation
+@inject NavigationManager NavManager
+
 
 <PageTitle>Login</PageTitle>
 
@@ -100,8 +102,8 @@
             if (success)
             {
                 successMessage = "Login successful! Redirecting...";
-                await Task.Delay(1500);
-                Navigation.NavigateTo("/dashboard");
+                await Task.Delay(1000);
+                NavManager.NavigateTo("/dashboard");
             }
             else
             {
