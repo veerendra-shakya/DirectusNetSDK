@@ -1,0 +1,99 @@
+@page "/items"
+@using Directus.Net.Abstractions
+@using Directus.Net.Models
+@using System.Text.Json
+@inject IDirectusClient DirectusClient
+
+<PageTitle>Items Browser</PageTitle>
+
+<h1>Items Browser</h1>
+
+<div class="mb-3">
+    <label for="collection" class="form-label">Collection Name:</label>
+    <div class="input-group">
+        <input id="collection" type="text" @bind="collectionName" class="form-control" placeholder="Enter collection name (e.g., articles)" />
+        <button class="btn btn-primary" @onclick="LoadItemsAsync" disabled="@isLoading">Load Items</button>
+    </div>
+    <small class="form-text text-muted">Enter the name of a Directus collection to browse its items</small>
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>Loading items...</p>
+    </div>
+}
+else if (errorMessage != null)
+{
+    <div class="alert alert-danger">
+        <strong>Error:</strong> @errorMessage
+    </div>
+}
+else if (items != null)
+{
+    <div class="alert alert-success">
+        Found @items.Length item(s) in collection '@collectionName'
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>JSON Data</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in items)
+                {
+                    <tr>
+                        <td>
+                            <pre class="mb-0">@JsonSerializer.Serialize(item, new JsonSerializerOptions { WriteIndented = true })</pre>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private string collectionName = "articles";
+    private object[]? items;
+    private string? errorMessage;
+    private bool isLoading;
+
+    private async Task LoadItemsAsync()
+    {
+        if (string.IsNullOrWhiteSpace(collectionName))
+        {
+            errorMessage = "Please enter a collection name";
+            return;
+        }
+
+        isLoading = true;
+        errorMessage = null;
+        items = null;
+
+        try
+        {
+            var query = new QueryBuilder()
+                .Limit(10)
+                .Build();
+
+            var response = await DirectusClient.Items.ReadItemsAsync<Dictionary<string, object>>(collectionName, query);
+            items = response.Data;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load items: {ex.Message}";
+            Console.WriteLine($"Error loading items: {ex}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

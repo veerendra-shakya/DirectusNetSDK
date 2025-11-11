@@ -12,15 +12,20 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "build"
+args = "blazor-app"
 
 [[workflows.workflow]]
-name = "build"
+name = "blazor-app"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "dotnet build Directus.Net.sln && dotnet test Directus.Net.sln --no-build"
+args = "dotnet run --project apps/DirectusBlazorApp/DirectusBlazorApp.csproj"
+waitForPort = 5000
 
 [workflows.workflow.metadata]
-outputType = "console"
+outputType = "webview"
+
+[[ports]]
+localPort = 5000
+externalPort = 80

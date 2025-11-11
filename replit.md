@@ -25,6 +25,12 @@ This is a production-ready .NET 9 class library that implements a comprehensive 
 ├── samples/
 │   └── Directus.Net.Sample/       # Console sample application
 │       └── Program.cs             # Demonstrates SDK usage
+├── apps/
+│   └── DirectusBlazorApp/         # Blazor Server demo application
+│       ├── Components/            # Blazor components (Pages, Layout)
+│       ├── Services/              # Blazor-specific services
+│       ├── Program.cs             # Application configuration
+│       └── appsettings.json       # Configuration (Directus URL)
 └── Directus.Net.sln               # Solution file
 ```
 
@@ -61,6 +67,10 @@ This is a production-ready .NET 9 class library that implements a comprehensive 
   - Added comprehensive test suite (20 tests, all passing)
   - Created sample console application
   - Configured NuGet package metadata
+  - Added Blazor Server demo application for proper testing
+  - Configured Directus URL: https://data.gwaliorsmartcity.org
+  - Implemented secure token storage with ProtectedSessionStorage
+  - Created authentication, dashboard, and items browsing pages
 
 ## Dependencies
 
@@ -91,10 +101,23 @@ dotnet build Directus.Net.sln
 dotnet test Directus.Net.sln
 ```
 
-### Run Sample
+### Run Console Sample
 ```bash
 dotnet run --project samples/Directus.Net.Sample
 ```
+
+### Run Blazor Server App
+```bash
+dotnet run --project apps/DirectusBlazorApp/DirectusBlazorApp.csproj
+# Navigate to http://localhost:5000
+```
+
+The Blazor app connects to https://data.gwaliorsmartcity.org and includes:
+- Login page for Directus authentication
+- Dashboard showing user information
+- Items browser for exploring Directus collections
+- Server health monitoring
+- Secure session-based token storage
 
 ### Create NuGet Package
 ```bash

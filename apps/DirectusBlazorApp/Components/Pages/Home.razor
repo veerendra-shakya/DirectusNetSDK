@@ -1,0 +1,104 @@
+@page "/"
+@using DirectusBlazorApp.Services
+@using Directus.Net.Abstractions
+@inject DirectusAuthService AuthService
+@inject IDirectusClient DirectusClient
+
+<PageTitle>Home</PageTitle>
+
+<h1>Directus.Net Blazor Server Demo</h1>
+
+<p>Welcome to the Directus.Net Blazor Server testing application!</p>
+
+<div class="mt-4">
+    <h3>Directus Instance</h3>
+    <p><strong>URL:</strong> @DirectusClient.BaseUrl</p>
+</div>
+
+<div class="mt-4">
+    <h3>Server Health</h3>
+    @if (healthCheckLoading)
+    {
+        <p>Checking server health...</p>
+    }
+    else if (isHealthy.HasValue)
+    {
+        <div class="alert @(isHealthy.Value ? "alert-success" : "alert-danger")">
+            Server is @(isHealthy.Value ? "healthy ✓" : "not responding ✗")
+        </div>
+    }
+    <button class="btn btn-primary" @onclick="CheckHealthAsync" disabled="@healthCheckLoading">
+        Check Health
+    </button>
+</div>
+
+<div class="mt-4">
+    <h3>Server Information</h3>
+    @if (serverInfoLoading)
+    {
+        <p>Loading server information...</p>
+    }
+    else if (serverInfo != null)
+    {
+        <div class="card">
+            <div class="card-body">
+                <p><strong>Project Name:</strong> @(serverInfo.Project?.ProjectName ?? "N/A")</p>
+                <p><strong>Project Descriptor:</strong> @(serverInfo.Project?.ProjectDescriptor ?? "N/A")</p>
+            </div>
+        </div>
+    }
+    <button class="btn btn-primary mt-2" @onclick="LoadServerInfoAsync" disabled="@serverInfoLoading">
+        Load Server Info
+    </button>
+</div>
+
+<div class="mt-4">
+    <h3>Quick Links</h3>
+    <ul>
+        <li><a href="/login">Login</a></li>
+        <li><a href="/items">Browse Items</a></li>
+        <li><a href="/about">About</a></li>
+    </ul>
+</div>
+
+@code {
+    private bool? isHealthy;
+    private bool healthCheckLoading;
+    private Directus.Net.Abstractions.ServerInfo? serverInfo;
+    private bool serverInfoLoading;
+
+    private async Task CheckHealthAsync()
+    {
+        healthCheckLoading = true;
+        try
+        {
+            isHealthy = await DirectusClient.Utils.HealthCheckAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Health check error: {ex.Message}");
+            isHealthy = false;
+        }
+        finally
+        {
+            healthCheckLoading = false;
+        }
+    }
+
+    private async Task LoadServerInfoAsync()
+    {
+        serverInfoLoading = true;
+        try
+        {
+            serverInfo = await DirectusClient.Utils.GetServerInfoAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Server info error: {ex.Message}");
+        }
+        finally
+        {
+            serverInfoLoading = false;
+        }
+    }
+}

@@ -13,6 +13,7 @@ A comprehensive, production-ready .NET 9 SDK for [Directus](https://directus.io)
 - **Resilience Policies** - Polly-based retry and circuit breaker patterns
 - **Dependency Injection** - Native support for Microsoft.Extensions.DependencyInjection
 - **Extensible Architecture** - Clean abstractions for custom implementations
+- **Blazor Server Integration** - Full-featured Blazor Server demo application included
 
 ## Installation
 
@@ -244,14 +245,38 @@ public class DatabaseTokenStore : ITokenStore
 - .NET 9.0 or later
 - Directus 11.1.0+ (recommended)
 
-## Sample Application
+## Sample Applications
 
+### Console Application
 See `samples/Directus.Net.Sample` for a complete console application demonstrating:
 - Authentication
 - Health checks
 - Query building
 - Filter examples
 - Server information retrieval
+
+### Blazor Server Application
+See `apps/DirectusBlazorApp` for a full-featured Blazor Server application demonstrating:
+- **Directus Instance**: https://data.gwaliorsmartcity.org
+- Secure authentication with protected session storage
+- User dashboard with profile information
+- Dynamic collection browsing
+- Server health monitoring
+- Login/logout flows
+- Integration patterns for Blazor applications
+
+Run the Blazor app:
+```bash
+dotnet run --project apps/DirectusBlazorApp/DirectusBlazorApp.csproj
+# Navigate to http://localhost:5000
+```
+
+The Blazor app showcases:
+- Custom `BlazorServerTokenStore` for secure token management
+- `DirectusAuthService` for authentication workflows
+- Interactive UI with server health checks
+- Real-time data browsing from Directus collections
+- Proper error handling and loading states
 
 ## Testing
 

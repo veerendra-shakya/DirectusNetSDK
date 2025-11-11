@@ -1,0 +1,103 @@
+@page "/login"
+@using DirectusBlazorApp.Services
+@inject DirectusAuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Login</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card mt-5">
+            <div class="card-header">
+                <h3>Login to Directus</h3>
+            </div>
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert alert-danger">@errorMessage</div>
+                }
+
+                @if (!string.IsNullOrEmpty(successMessage))
+                {
+                    <div class="alert alert-success">@successMessage</div>
+                }
+
+                <EditForm Model="loginModel" OnValidSubmit="HandleLoginAsync">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <InputText id="email" @bind-Value="loginModel.Email" class="form-control" placeholder="Enter your email" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <InputText id="password" type="password" @bind-Value="loginModel.Password" class="form-control" placeholder="Enter your password" />
+                    </div>
+
+                    <div class="mb-3">
+                        <button type="submit" class="btn btn-primary w-100" disabled="@isLoading">
+                            @if (isLoading)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                                <span>Logging in...</span>
+                            }
+                            else
+                            {
+                                <span>Login</span>
+                            }
+                        </button>
+                    </div>
+                </EditForm>
+
+                <div class="text-center mt-3">
+                    <p class="text-muted">
+                        Testing credentials can be obtained from your Directus admin panel
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginModel loginModel = new();
+    private string? errorMessage;
+    private string? successMessage;
+    private bool isLoading;
+
+    private async Task HandleLoginAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+        successMessage = null;
+
+        try
+        {
+            var (success, error) = await AuthService.LoginAsync(loginModel.Email, loginModel.Password);
+
+            if (success)
+            {
+                successMessage = "Login successful! Redirecting...";
+                await Task.Delay(1000);
+                Navigation.NavigateTo("/dashboard", forceLoad: true);
+            }
+            else
+            {
+                errorMessage = error ?? "Login failed. Please check your credentials.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    public class LoginModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+}
