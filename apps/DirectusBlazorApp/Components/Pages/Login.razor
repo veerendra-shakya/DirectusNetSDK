@@ -1,5 +1,6 @@
 @page "/login"
 @using DirectusBlazorApp.Services
+@using DirectusBlazorApp.Models
 @inject DirectusAuthService AuthService
 @inject NavigationManager Navigation
 
@@ -14,30 +15,44 @@
             <div class="card-body">
                 @if (!string.IsNullOrEmpty(errorMessage))
                 {
-                    <div class="alert alert-danger">@errorMessage</div>
+                    <div class="alert alert-danger" role="alert">@errorMessage</div>
                 }
 
                 @if (!string.IsNullOrEmpty(successMessage))
                 {
-                    <div class="alert alert-success">@successMessage</div>
+                    <div class="alert alert-success" role="alert">@successMessage</div>
                 }
 
-                <EditForm Model="loginModel" OnValidSubmit="HandleLoginAsync">
+                <EditForm Model="@loginModel" OnValidSubmit="HandleLoginAsync">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="text-danger" />
+                    
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <InputText id="email" @bind-Value="loginModel.Email" class="form-control" placeholder="Enter your email" />
+                        <label for="email" class="form-label">Email Address</label>
+                        <InputText id="email" 
+                                   @bind-Value="loginModel.Email" 
+                                   class="form-control" 
+                                   placeholder="Enter your email"
+                                   autocomplete="email" />
+                        <ValidationMessage For="@(() => loginModel.Email)" class="text-danger" />
                     </div>
 
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
-                        <InputText id="password" type="password" @bind-Value="loginModel.Password" class="form-control" placeholder="Enter your password" />
+                        <InputText id="password" 
+                                   type="password" 
+                                   @bind-Value="loginModel.Password" 
+                                   class="form-control" 
+                                   placeholder="Enter your password"
+                                   autocomplete="current-password" />
+                        <ValidationMessage For="@(() => loginModel.Password)" class="text-danger" />
                     </div>
 
                     <div class="mb-3">
                         <button type="submit" class="btn btn-primary w-100" disabled="@isLoading">
                             @if (isLoading)
                             {
-                                <span class="spinner-border spinner-border-sm me-2"></span>
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                                 <span>Logging in...</span>
                             }
                             else
@@ -72,12 +87,18 @@
 
         try
         {
-            var (success, error) = await AuthService.LoginAsync(loginModel.Email, loginModel.Password);
+            if (string.IsNullOrWhiteSpace(loginModel.Email) || string.IsNullOrWhiteSpace(loginModel.Password))
+            {
+                errorMessage = "Email and password are required";
+                return;
+            }
+
+            var (success, error) = await AuthService.LoginAsync(loginModel.Email.Trim(), loginModel.Password);
 
             if (success)
             {
                 successMessage = "Login successful! Redirecting...";
-                await Task.Delay(1000);
+                await Task.Delay(1500);
                 Navigation.NavigateTo("/dashboard", forceLoad: true);
             }
             else
@@ -93,11 +114,5 @@
         {
             isLoading = false;
         }
-    }
-
-    public class LoginModel
-    {
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
     }
 }

@@ -61,7 +61,7 @@ This is a production-ready .NET 9 class library that implements a comprehensive 
 - **Error Handling**: Custom exception types with detailed error information
 
 ## Recent Changes
-- **2025-11-11**: Initial implementation
+- **2025-11-11**: Initial implementation and form validation fixes
   - Created complete SDK architecture with all core services
   - Implemented REST, GraphQL, and WebSocket support
   - Added comprehensive test suite (20 tests, all passing)
@@ -71,6 +71,14 @@ This is a production-ready .NET 9 class library that implements a comprehensive 
   - Configured Directus URL: https://data.gwaliorsmartcity.org
   - Implemented secure token storage with ProtectedSessionStorage
   - Created authentication, dashboard, and items browsing pages
+  - **Fixed form validation issues**:
+    - Created separate model classes (LoginModel, ItemsQueryModel)
+    - Added Data Annotations for validation (Required, EmailAddress, Range)
+    - Implemented DataAnnotationsValidator in all forms
+    - Added ValidationMessage components for field-level feedback
+    - Added proper OnInitialized() and StateHasChanged() calls
+    - Improved accessibility with autocomplete attributes
+    - All forms now follow Blazor best practices
 
 ## Dependencies
 
