@@ -98,6 +98,6 @@
     private async Task HandleLogoutAsync()
     {
         await AuthService.LogoutAsync();
-        Navigation.NavigateTo("/", forceLoad: true);
+        Navigation.NavigateTo("/");
     }
 }
