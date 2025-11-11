@@ -23,7 +23,7 @@
                     <div class="alert alert-success" role="alert">@successMessage</div>
                 }
 
-                <EditForm Model="@loginModel" OnValidSubmit="HandleLoginAsync">
+                <EditForm Model="@loginModel" OnValidSubmit="HandleLoginAsync" FormName="loginForm">
                     <DataAnnotationsValidator />
                     <ValidationSummary class="text-danger" />
                     
