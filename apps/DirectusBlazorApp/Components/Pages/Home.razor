@@ -70,6 +70,7 @@
     private async Task CheckHealthAsync()
     {
         healthCheckLoading = true;
+        StateHasChanged();
         try
         {
             isHealthy = await DirectusClient.Utils.HealthCheckAsync();
@@ -82,12 +83,14 @@
         finally
         {
             healthCheckLoading = false;
+            StateHasChanged();
         }
     }
 
     private async Task LoadServerInfoAsync()
     {
         serverInfoLoading = true;
+        StateHasChanged();
         try
         {
             serverInfo = await DirectusClient.Utils.GetServerInfoAsync();
@@ -95,10 +98,12 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Server info error: {ex.Message}");
+            serverInfo = null;
         }
         finally
         {
             serverInfoLoading = false;
+            StateHasChanged();
         }
     }
 }
