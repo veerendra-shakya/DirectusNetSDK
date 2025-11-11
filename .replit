@@ -1,2 +1,26 @@
+modules = ["dotnet-9.0"]
 [agent]
 expertMode = true
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "build"
+
+[[workflows.workflow]]
+name = "build"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "dotnet build Directus.Net.sln && dotnet test Directus.Net.sln --no-build"
+
+[workflows.workflow.metadata]
+outputType = "console"
