@@ -20,13 +20,16 @@ public class DirectusAuthService
     {
         try
         {
+            _logger.LogInformation("Attempting login for user: {Email}", email);
             var response = await _directusClient.Auth.LoginAsync(email, password);
             
             if (response?.AccessToken == null)
             {
+                _logger.LogWarning("Login failed - no access token received for user: {Email}", email);
                 return (false, "Login failed - no access token received");
             }
 
+            _logger.LogInformation("Login successful for user: {Email}", email);
             return (true, null);
         }
         catch (DirectusAuthException ex)
@@ -73,7 +76,18 @@ public class DirectusAuthService
 
     public async Task<bool> IsAuthenticatedAsync()
     {
-        var token = await _directusClient.Auth.GetTokenAsync();
-        return !string.IsNullOrEmpty(token);
+        try
+        {
+            var token = await _directusClient.Auth.GetTokenAsync();
+            var isAuthenticated = !string.IsNullOrEmpty(token);
+            _logger.LogInformation("Authentication check: {IsAuthenticated}, Token length: {TokenLength}", 
+                isAuthenticated, token?.Length ?? 0);
+            return isAuthenticated;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error checking authentication status");
+            return false;
+        }
     }
 }

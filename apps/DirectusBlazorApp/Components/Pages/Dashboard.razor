@@ -64,11 +64,16 @@
     private bool isLoading = true;
     private string errorMessage = string.Empty;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (!firstRender)
+            return;
+
         try
         {
             isLoading = true;
+            StateHasChanged();
+            
             var isAuthenticated = await AuthService.IsAuthenticatedAsync();
 
             if (!isAuthenticated)
@@ -93,6 +98,7 @@
         finally
         {
             isLoading = false;
+            StateHasChanged();
         }
     }
 
