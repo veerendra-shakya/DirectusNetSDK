@@ -6,50 +6,50 @@
 
 <PageTitle>Login</PageTitle>
 
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card mt-5">
-            <div class="card-header">
-                <h3>Login to Directus</h3>
-            </div>
-            <div class="card-body">
-                @if (!string.IsNullOrEmpty(errorMessage))
-                {
-                    <div class="alert alert-danger" role="alert">@errorMessage</div>
-                }
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h3 class="card-title mb-4 text-center">Login to Directus</h3>
+                </div>
+                <div class="card-body p-4">
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">@errorMessage</div>
+                    }
 
-                @if (!string.IsNullOrEmpty(successMessage))
-                {
-                    <div class="alert alert-success" role="alert">@successMessage</div>
-                }
+                    @if (!string.IsNullOrEmpty(successMessage))
+                    {
+                        <div class="alert alert-success" role="alert">@successMessage</div>
+                    }
 
-                <EditForm Model="@loginModel" OnValidSubmit="HandleLoginAsync" FormName="loginForm">
-                    <DataAnnotationsValidator />
-                    <ValidationSummary class="text-danger" />
-                    
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email Address</label>
-                        <InputText id="email" 
-                                   @bind-Value="loginModel.Email" 
-                                   class="form-control" 
-                                   placeholder="Enter your email"
-                                   autocomplete="email" />
-                        <ValidationMessage For="@(() => loginModel.Email)" class="text-danger" />
-                    </div>
+                    <EditForm Model="@loginModel" OnValidSubmit="HandleLoginAsync" FormName="loginForm">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="text-danger" />
 
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <InputText id="password" 
-                                   type="password" 
-                                   @bind-Value="loginModel.Password" 
-                                   class="form-control" 
-                                   placeholder="Enter your password"
-                                   autocomplete="current-password" />
-                        <ValidationMessage For="@(() => loginModel.Password)" class="text-danger" />
-                    </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-semibold">Email Address</label>
+                            <InputText id="email" 
+                                       @bind-Value="loginModel.Email" 
+                                       class="form-control form-control-lg" 
+                                       placeholder="your.email@example.com"
+                                       autocomplete="username" />
+                            <ValidationMessage For="@(() => loginModel.Email)" class="text-danger small mt-1" />
+                        </div>
 
-                    <div class="mb-3">
-                        <button type="submit" class="btn btn-primary w-100" disabled="@isLoading">
+                        <div class="mb-4">
+                            <label for="password" class="form-label fw-semibold">Password</label>
+                            <InputText id="password" 
+                                       type="password" 
+                                       @bind-Value="loginModel.Password" 
+                                       class="form-control form-control-lg" 
+                                       placeholder="Enter your password"
+                                       autocomplete="current-password" />
+                            <ValidationMessage For="@(() => loginModel.Password)" class="text-danger small mt-1" />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100" disabled="@isLoading">
                             @if (isLoading)
                             {
                                 <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -60,13 +60,13 @@
                                 <span>Login</span>
                             }
                         </button>
-                    </div>
-                </EditForm>
+                    </EditForm>
 
-                <div class="text-center mt-3">
-                    <p class="text-muted">
-                        Testing credentials can be obtained from your Directus admin panel
-                    </p>
+                    <div class="text-center mt-3">
+                        <p class="text-muted">
+                            Testing credentials can be obtained from your Directus admin panel
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -76,7 +76,7 @@
 @code {
     [SupplyParameterFromForm]
     private LoginModel loginModel { get; set; } = new();
-    
+
     private string? errorMessage;
     private string? successMessage;
     private bool isLoading;
