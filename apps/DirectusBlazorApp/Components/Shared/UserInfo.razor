@@ -1,0 +1,201 @@
+@using Directus.Net.Abstractions
+@inject IDirectusClient DirectusClient
+
+<div class="user-info">
+    @if (isLoading)
+    {
+        <div class="user-skeleton">
+            <div class="skeleton-avatar"></div>
+            <div class="skeleton-text"></div>
+        </div>
+    }
+    else if (hasError)
+    {
+        <div class="user-details">
+            <div class="avatar-placeholder">!</div>
+            <div class="user-text">
+                <div class="user-name">Not Signed In</div>
+                <a href="/login" class="user-email">Login</a>
+            </div>
+        </div>
+    }
+    else if (currentUser != null)
+    {
+        <div class="user-details">
+            <div class="user-avatar">
+                @if (!string.IsNullOrEmpty(currentUser.Avatar))
+                {
+                    <img src="@GetAvatarUrl()" alt="@GetUserName()" />
+                }
+                else
+                {
+                    <div class="avatar-placeholder">
+                        @GetInitials()
+                    </div>
+                }
+            </div>
+            <div class="user-text">
+                <div class="user-name">@GetUserName()</div>
+                <div class="user-email">@currentUser.Email</div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="user-details">
+            <div class="avatar-placeholder">?</div>
+            <div class="user-text">
+                <div class="user-name">Guest</div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private DirectusUser? currentUser;
+    private bool isLoading = true;
+    private bool hasError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            currentUser = await DirectusClient.Users.GetMeAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading user info: {ex.Message}");
+            hasError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private string GetUserName()
+    {
+        if (currentUser == null) return "Unknown User";
+        
+        var fullName = $"{currentUser.FirstName} {currentUser.LastName}".Trim();
+        return string.IsNullOrEmpty(fullName) ? (currentUser.Email ?? "User") : fullName;
+    }
+
+    private string GetInitials()
+    {
+        if (currentUser == null) return "?";
+        
+        var initials = "";
+        if (!string.IsNullOrEmpty(currentUser.FirstName))
+            initials += currentUser.FirstName[0];
+        if (!string.IsNullOrEmpty(currentUser.LastName))
+            initials += currentUser.LastName[0];
+        
+        return string.IsNullOrEmpty(initials) ? 
+            (currentUser.Email?[0].ToString().ToUpper() ?? "?") : 
+            initials.ToUpper();
+    }
+
+    private string GetAvatarUrl()
+    {
+        if (string.IsNullOrEmpty(currentUser?.Avatar))
+            return string.Empty;
+        
+        return $"{DirectusClient.BaseUrl}/assets/{currentUser.Avatar}";
+    }
+}
+
+<style>
+    .user-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .user-details {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+    }
+
+    .user-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .avatar-placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .user-text {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .user-name {
+        font-weight: 600;
+        color: #1f2937;
+        font-size: 0.875rem;
+    }
+
+    .user-email {
+        font-size: 0.75rem;
+        color: #6b7280;
+    }
+
+    .user-skeleton {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .skeleton-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s ease-in-out infinite;
+    }
+
+    .skeleton-text {
+        width: 100px;
+        height: 1rem;
+        border-radius: 0.25rem;
+        background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s ease-in-out infinite;
+    }
+
+    @@keyframes loading {
+        0% {
+            background-position: 200% 0;
+        }
+        100% {
+            background-position: -200% 0;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .user-text {
+            display: none;
+        }
+    }
+</style>

@@ -1,5 +1,4 @@
 using System.Text;
-using System.Web;
 using Directus.Net.Abstractions;
 using Directus.Net.Models;
 using Microsoft.Extensions.Logging;
@@ -105,7 +104,7 @@ public class ItemsService : IItemsService
 
         if (query.Filter != null)
         {
-            queryParams.Add($"filter={HttpUtility.UrlEncode(System.Text.Json.JsonSerializer.Serialize(query.Filter))}");
+            queryParams.Add($"filter={Uri.EscapeDataString(System.Text.Json.JsonSerializer.Serialize(query.Filter))}");
         }
 
         if (query.Sort != null && query.Sort.Length > 0)
@@ -135,7 +134,7 @@ public class ItemsService : IItemsService
 
         if (!string.IsNullOrEmpty(query.Search))
         {
-            queryParams.Add($"search={HttpUtility.UrlEncode(query.Search)}");
+            queryParams.Add($"search={Uri.EscapeDataString(query.Search)}");
         }
 
         if (!string.IsNullOrEmpty(query.Meta))

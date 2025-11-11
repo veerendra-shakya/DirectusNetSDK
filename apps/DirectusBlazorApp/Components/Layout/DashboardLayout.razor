@@ -1,0 +1,267 @@
+@inherits LayoutComponentBase
+@using DirectusBlazorApp.Services
+@inject DirectusAuthService AuthService
+@inject NavigationManager Navigation
+
+@if (isAuthenticating)
+{
+    <div class="auth-loading">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Checking authentication...</span>
+        </div>
+    </div>
+}
+else if (!isAuthenticated)
+{
+    <div class="auth-error">
+        <h3>Authentication Required</h3>
+        <p>Redirecting to login...</p>
+    </div>
+}
+else
+{
+<div class="dashboard-container">
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <h4>Directus.Net</h4>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <NavLink class="nav-item" href="/dashboard" Match="NavLinkMatch.All">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </NavLink>
+            
+            <NavLink class="nav-item" href="/profile">
+                <span class="nav-icon">👤</span>
+                <span class="nav-text">Profile</span>
+            </NavLink>
+            
+            <NavLink class="nav-item" href="/items">
+                <span class="nav-icon">📦</span>
+                <span class="nav-text">Items</span>
+            </NavLink>
+            
+            <NavLink class="nav-item" href="/settings">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Settings</span>
+            </NavLink>
+            
+            <button class="nav-item logout-btn" @onclick="HandleLogout">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-text">Logout</span>
+            </button>
+        </nav>
+    </aside>
+
+    <div class="dashboard-main">
+        <header class="dashboard-header">
+            <div class="header-content">
+                <div class="header-right">
+                    <UserInfo />
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-content">
+            @Body
+        </main>
+    </div>
+</div>
+}
+
+@code {
+    private bool isAuthenticating = true;
+    private bool isAuthenticated = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        try
+        {
+            await Task.Delay(100);
+            isAuthenticated = await AuthService.IsAuthenticatedAsync();
+            
+            if (!isAuthenticated)
+            {
+                Navigation.NavigateTo("/login");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Authentication check error: {ex.Message}");
+            Navigation.NavigateTo("/login");
+        }
+        finally
+        {
+            isAuthenticating = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+}
+
+<style>
+    .dashboard-container {
+        display: flex;
+        min-height: 100vh;
+        background-color: #f5f7fa;
+    }
+
+    .dashboard-sidebar {
+        width: 260px;
+        background: linear-gradient(180deg, #1e3a8a 0%, #312e81 100%);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 100;
+    }
+
+    .sidebar-header {
+        padding: 1.5rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-header h4 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    .sidebar-nav {
+        flex: 1;
+        padding: 1rem 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 0.875rem 1.25rem;
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border: none;
+        background: transparent;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+        font-size: 0.938rem;
+    }
+
+    .nav-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+
+    .nav-item.active {
+        background-color: rgba(255, 255, 255, 0.15);
+        color: white;
+        border-right: 3px solid #60a5fa;
+    }
+
+    .nav-icon {
+        font-size: 1.25rem;
+        margin-right: 0.75rem;
+        width: 1.5rem;
+        text-align: center;
+    }
+
+    .logout-btn {
+        margin-top: auto;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .dashboard-main {
+        flex: 1;
+        margin-left: 260px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .dashboard-header {
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 1rem 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .dashboard-content {
+        flex: 1;
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .auth-loading,
+    .auth-error {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: #f5f7fa;
+    }
+
+    .auth-loading .spinner-border {
+        width: 3rem;
+        height: 3rem;
+        color: #667eea;
+    }
+
+    .auth-error h3 {
+        color: #991b1b;
+        margin-bottom: 1rem;
+    }
+
+    @@media (max-width: 768px) {
+        .dashboard-sidebar {
+            width: 70px;
+        }
+
+        .nav-text {
+            display: none;
+        }
+
+        .sidebar-header h4 {
+            font-size: 0.875rem;
+        }
+
+        .dashboard-main {
+            margin-left: 70px;
+        }
+
+        .header-content {
+            padding: 1rem;
+        }
+
+        .dashboard-content {
+            padding: 1rem;
+        }
+    }
+</style>

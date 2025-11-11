@@ -1,96 +1,95 @@
 @page "/items"
+@rendermode InteractiveServer
 @using Directus.Net.Abstractions
 @using Directus.Net.Models
 @using DirectusBlazorApp.Models
 @using System.Text.Json
 @inject IDirectusClient DirectusClient
+@layout DashboardLayout
 
 <PageTitle>Items Browser</PageTitle>
 
-<h1>Items Browser</h1>
+<div class="items-page">
+    <div class="page-header">
+        <h2>Items Browser</h2>
+        <p>Explore and query items from Directus collections</p>
+    </div>
 
-<div class="card mb-4">
-    <div class="card-body">
+    <div class="query-panel">
         <EditForm Model="@queryModel" OnValidSubmit="LoadItemsAsync">
             <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" />
+            <ValidationSummary class="alert alert-danger" />
             
-            <div class="mb-3">
-                <label for="collection" class="form-label">Collection Name</label>
-                <InputText id="collection" 
-                           @bind-Value="queryModel.CollectionName" 
-                           class="form-control" 
-                           placeholder="Enter collection name (e.g., articles)"
-                           autocomplete="off" />
-                <ValidationMessage For="@(() => queryModel.CollectionName)" class="text-danger" />
-                <small class="form-text text-muted">Enter the name of a Directus collection to browse its items</small>
-            </div>
+            <div class="form-row">
+                <div class="form-group flex-grow-1">
+                    <label for="collection" class="form-label">Collection Name</label>
+                    <InputText id="collection" 
+                               @bind-Value="queryModel.CollectionName" 
+                               class="form-control" 
+                               placeholder="Enter collection name (e.g., articles)"
+                               autocomplete="off" />
+                    <ValidationMessage For="@(() => queryModel.CollectionName)" class="text-danger" />
+                </div>
 
-            <div class="mb-3">
-                <label for="limit" class="form-label">Item Limit</label>
-                <InputNumber id="limit" 
-                             @bind-Value="queryModel.Limit" 
-                             class="form-control"
-                             autocomplete="off" />
-                <ValidationMessage For="@(() => queryModel.Limit)" class="text-danger" />
-            </div>
+                <div class="form-group">
+                    <label for="limit" class="form-label">Limit</label>
+                    <InputNumber id="limit" 
+                                 @bind-Value="queryModel.Limit" 
+                                 class="form-control"
+                                 autocomplete="off" />
+                    <ValidationMessage For="@(() => queryModel.Limit)" class="text-danger" />
+                </div>
 
-            <button type="submit" class="btn btn-primary" disabled="@isLoading">
-                @if (isLoading)
-                {
-                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    <span>Loading...</span>
-                }
-                else
-                {
-                    <span>Load Items</span>
-                }
-            </button>
+                <div class="form-group align-self-end">
+                    <button type="submit" class="btn btn-primary" disabled="@isLoading">
+                        @if (isLoading)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            <span>Loading...</span>
+                        }
+                        else
+                        {
+                            <span>🔍 Load Items</span>
+                        }
+                    </button>
+                </div>
+            </div>
         </EditForm>
     </div>
-</div>
 
-@if (isLoading)
-{
-    <div class="text-center">
-        <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
+    @if (isLoading)
+    {
+        <div class="loading-panel">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p>Loading items from @queryModel.CollectionName...</p>
         </div>
-        <p>Loading items...</p>
-    </div>
-}
-else if (errorMessage != null)
-{
-    <div class="alert alert-danger">
-        <strong>Error:</strong> @errorMessage
-    </div>
-}
-else if (items != null)
-{
-    <div class="alert alert-success">
-        Found @items.Length item(s) in collection '@queryModel.CollectionName'
-    </div>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="alert alert-danger">
+            <strong>⚠️ Error:</strong> @errorMessage
+        </div>
+    }
+    else if (items != null)
+    {
+        <div class="results-panel">
+            <div class="results-header">
+                <h3>Found @items.Length item(s) in '@queryModel.CollectionName'</h3>
+            </div>
 
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>JSON Data</th>
-                </tr>
-            </thead>
-            <tbody>
+            <div class="items-grid">
                 @foreach (var item in items)
                 {
-                    <tr>
-                        <td>
-                            <pre class="mb-0">@JsonSerializer.Serialize(item, new JsonSerializerOptions { WriteIndented = true })</pre>
-                        </td>
-                    </tr>
+                    <div class="item-card">
+                        <pre>@JsonSerializer.Serialize(item, new JsonSerializerOptions { WriteIndented = true })</pre>
+                    </div>
                 }
-            </tbody>
-        </table>
-    </div>
-}
+            </div>
+        </div>
+    }
+</div>
 
 @code {
     private ItemsQueryModel queryModel = new()
@@ -137,3 +136,168 @@ else if (items != null)
         }
     }
 }
+
+<style>
+    .items-page {
+        max-width: 100%;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h2 {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: #6b7280;
+        font-size: 1rem;
+    }
+
+    .query-panel {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 2rem;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group.flex-grow-1 {
+        flex: 1;
+    }
+
+    .form-label {
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #374151;
+        font-size: 0.875rem;
+    }
+
+    .form-control {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        background: #5568d3;
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .loading-panel {
+        text-align: center;
+        padding: 3rem;
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .loading-panel .spinner-border {
+        width: 3rem;
+        height: 3rem;
+        color: #667eea;
+    }
+
+    .results-panel {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 2rem;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .results-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .results-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .items-grid {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .item-card {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        overflow-x: auto;
+    }
+
+    .item-card pre {
+        margin: 0;
+        font-size: 0.875rem;
+        color: #1f2937;
+        font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .alert-danger {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+
+    @@media (max-width: 768px) {
+        .form-row {
+            flex-direction: column;
+        }
+
+        .form-group {
+            width: 100%;
+        }
+    }
+</style>
