@@ -74,7 +74,9 @@
 </div>
 
 @code {
-    private LoginModel loginModel = new();
+    [SupplyParameterFromForm]
+    private LoginModel loginModel { get; set; } = new();
+    
     private string? errorMessage;
     private string? successMessage;
     private bool isLoading;
